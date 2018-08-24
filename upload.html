@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+		 var appId='41dfd580e1f6dde';
+        $("document").ready(function () {
+		
+            function callAPI(image) {
+                console.log("Uploading file to Imgur..");
+
+                // Replace ctrlq with your own API key
+                var apiUrl = 'https://api.imgur.com/3/image';
+                var apiKey = 'ctrlq';
+
+                var settings = {
+                    async: true,
+                    crossDomain: true,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    url: apiUrl,
+                    headers: {
+                        Authorization: 'Client-ID '+appId,
+                        Accept: 'application/json'
+                    },
+                    mimeType: 'multipart/form-data'
+                };
+                
+                var formData = new FormData();
+                        formData.append("image",image);
+                        settings.data = formData;
+                        // Response contains stringified JSON
+                        // Image URL available at response.data.link
+                        $.ajax(settings).done(function (response) {
+                            console.log(response);
+                            let data = JSON.parse(response);
+                            $("#result").append("<li>" + data.data.link + "</li>")
+                        });
+            }
+            async function demo(index){
+                console.log(index)
+            }
+
+            $("#upload_url").on("click",function(){
+                
+                var datas = $("#image_urls").val();
+                console.log(datas)
+                var array = datas.split('\n');
+                console.log(array);
+                
+                if (array.length > 0) {
+				$("#result").append("<li>==========================================</li>")
+                    // Begin file upload
+                    $.each(array,function(index,value){
+						 if(array[index].trim()!=''){
+						   callAPI(array[index]);
+						 }
+                      
+                        // demo(index);
+                    })
+                }
+                
+                
+                            })
+            $("#clear").on("click", function () {
+                $("#result").empty();
+            })
+            $('#upload').on("click", function () {
+               
+                var $files = $('input[type=file]').get(0).files;
+                console.log($files)
+
+                if ($files.length) {
+				 $("#result").append("<li>==========================================</li>")
+                    // Begin file upload
+                    $.each($files,function(index,value){
+                        callAPI($files[index]);
+                        // demo(index);
+                    })
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    <h1>Chose File </h1>
+    <form id="imgur">
+        <input type="file" class="imgur" accept="image/*" data-max-size="10000" multiple/>
+        <input type="button" id="upload" value="upload">
+    </form>
+
+    <p>
+
+    </p>
+    <h1>Enter Link (one link one line) </h1>
+    <textarea id="image_urls" rows="20" cols="100"></textarea>
+    <P></P>
+    <input type="button" id="upload_url" value="uload url">
+    <P></P>
+    File LINK
+    <ul id="result">
+        <li></li>
+    </ul>
+    <input type="button" id="clear" value="clear">
+
+
+</body>
+
+</html>
